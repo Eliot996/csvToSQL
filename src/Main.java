@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Scanner;
 
 public class Main {
@@ -76,9 +74,10 @@ public class Main {
     public static void writeToFile(String filePath, String stringToSave){
         try {
             // print to file
-            PrintStream printStream = new PrintStream(filePath);
-            printStream.print(stringToSave);
-        } catch (FileNotFoundException e) {
+            FileWriter fileWriter = new FileWriter(filePath);
+            fileWriter.write(stringToSave);
+            fileWriter.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
