@@ -22,12 +22,12 @@ public class Main {
             e.printStackTrace();
         }
 
-        makeDDL();
+        makeAndSaveDDL();
 
-        makeDML();
+        makeAndSaveDML();
     }
 
-    private static void makeDDL() {
+    private static void makeAndSaveDDL() {
         StringBuilder DDLString = new StringBuilder();
 
         //Create table header
@@ -49,27 +49,24 @@ public class Main {
         writeToFile("data/DDL.sql", DDLString.toString());
     }
 
-    private static void makeDML() {
-        /*
-        INSERT INTO table_name
-        VALUES (value1, value2, value3, ...);
-         */
+    private static void makeAndSaveDML() {
         StringBuilder DMLString = new StringBuilder();
 
-
-
         while (fileScanner.hasNextLine()) {
+            // get the object (the line), and spilt its elements
             String[] elements = fileScanner.nextLine().split(";");
-            // make insert
+
+            // make insert into statement
             DMLString.append("INSERT INTO ").append(FILE_NAME.replace("-","_")).append("\n");
 
-            // values
+            // add the values to the StringBuilder
             DMLString.append("VALUES (");
             DMLString.append("\"").append(elements[0]).append("\"");
             for (int i = 1; i < elements.length; i++) {
                 DMLString.append(", ");
                 DMLString.append("\"").append(elements[i]).append("\"");
             }
+            // add the ending to the statement
             DMLString.append(");\n");
         }
 
