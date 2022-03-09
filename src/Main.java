@@ -38,9 +38,9 @@ public class Main {
 
         // define columns
         String[] elements = fileScanner.nextLine().split(";");
-        for (int i = 0; i < elements.length; i++) {
+        for (String element : elements) {
             DDLString.append(",\n");
-            DDLString.append("    ").append(elements[i]).append(" varchar(255)");
+            DDLString.append("    ").append(element).append(" varchar(255)");
         }
 
         // ending
