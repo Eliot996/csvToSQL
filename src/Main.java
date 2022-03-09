@@ -2,15 +2,11 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Main {
-    // read the first line from the file
-    // generate the DDL
-
-    // read the next lines and convert them to inserts
-
     private static final String FILE_NAME = "imdb-data";
     private static final String FILE_PATH = "data/" + FILE_NAME + ".csv";
     private static final File FILE = new File(FILE_PATH);
     private static Scanner fileScanner = null;
+    private static String columns;
 
     public static void main(String[] args) {
         // make file scanner
@@ -32,7 +28,7 @@ public class Main {
         DDLString.append("CREATE TABLE ")
                  .append(FILE_NAME.replace("-", "_"))
                  .append(" (\n")
-                 .append("    ID int NOT NULL AUTO_INCREMENT");
+                 .append("    ID int NOT NULL AUTO_INCREMENT PRIMARY KEY");
 
         // define columns
         String[] elements = fileScanner.nextLine().split(";");
@@ -45,6 +41,12 @@ public class Main {
         DDLString.append("\n);");
 
         writeToFile("data/DDL.sql", DDLString.toString());
+
+        // save columns
+        columns = elements[0];
+        for (int i = 1; i < elements.length; i++) {
+            columns += ", " + elements[i];
+        }
     }
 
     private static void makeAndSaveDML() {
@@ -55,7 +57,10 @@ public class Main {
             String[] elements = fileScanner.nextLine().split(";");
 
             // make insert into statement
-            DMLString.append("INSERT INTO ").append(FILE_NAME.replace("-","_")).append("\n");
+            DMLString.append("INSERT INTO ")
+                     .append(FILE_NAME.replace("-","_"))
+                     .append("(").append(columns).append(")")
+                     .append("\n");
 
             // add the values to the StringBuilder
             DMLString.append("VALUES (");
