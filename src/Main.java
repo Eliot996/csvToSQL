@@ -1,14 +1,18 @@
 import java.io.*;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
-    private static final String FILE_NAME = "imdb-data";
-    private static final String FILE_PATH = "data/" + FILE_NAME + ".csv";
+    private static final DBConnector DB_CONNECTOR = DBConnector.getDbConnector();
+
+    private static final String FILE_PATH = "data/imdb-data.csv";
+    private static final String FILE_NAME = FILE_PATH.substring(FILE_PATH.lastIndexOf("/") + 1, FILE_PATH.lastIndexOf(".")).replaceAll("-", "_");
     private static final File FILE = new File(FILE_PATH);
+
     private static Scanner fileScanner = null;
     private static String columns;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         // make file scanner
         try {
             fileScanner = new Scanner(FILE);
@@ -16,12 +20,13 @@ public class Main {
             e.printStackTrace();
         }
 
-        makeAndSaveDDL();
+        makeAndExecuteDDL();
 
         makeAndSaveDML();
+        DB_CONNECTOR.DBDisconnect();
     }
 
-    private static void makeAndSaveDDL() {
+    private static void makeAndExecuteDDL() throws SQLException {
         StringBuilder DDLString = new StringBuilder();
 
         //Create table header
@@ -40,13 +45,17 @@ public class Main {
         // ending
         DDLString.append("\n);");
 
-        writeToFile("data/DDL.sql", DDLString.toString());
+        //writeToFile("data/DDL.sql", DDLString.toString());
+        DB_CONNECTOR.excuteStatment(DDLString.toString());
 
-        // save columns
+        // save columns, for use in the insert statements
+
         columns = elements[0];
         for (int i = 1; i < elements.length; i++) {
             columns += ", " + elements[i];
         }
+
+        DB_CONNECTOR.setColumns(columns);
     }
 
     private static void makeAndSaveDML() {
