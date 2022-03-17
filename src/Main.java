@@ -1,5 +1,6 @@
 import java.io.*;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -13,6 +14,9 @@ public class Main {
     private static String columns;
 
     public static void main(String[] args) throws SQLException {
+        // clean the for the table
+        DB_CONNECTOR.executeStatement("DROP TABLE " + FILE_NAME);
+
         // make file scanner
         try {
             fileScanner = new Scanner(FILE);
@@ -22,7 +26,8 @@ public class Main {
 
         makeAndExecuteDDL();
 
-        makeAndSaveDML();
+        makeAndExecuteDML();
+
         DB_CONNECTOR.DBDisconnect();
     }
 
@@ -46,7 +51,7 @@ public class Main {
         DDLString.append("\n);");
 
         //writeToFile("data/DDL.sql", DDLString.toString());
-        DB_CONNECTOR.excuteStatment(DDLString.toString());
+        DB_CONNECTOR.executeStatement(DDLString.toString());
 
         // save columns, for use in the insert statements
 
@@ -56,43 +61,24 @@ public class Main {
         }
 
         DB_CONNECTOR.setColumns(columns);
+        DB_CONNECTOR.setFileName(FILE_NAME);
     }
 
-    private static void makeAndSaveDML() {
-        StringBuilder DMLString = new StringBuilder();
+    private static void makeAndExecuteDML() throws SQLException {
+        boolean added;
 
         while (fileScanner.hasNextLine()) {
             // get the object (the line), and spilt its elements
             String[] elements = fileScanner.nextLine().split(";");
 
-            // make insert into statement
-            DMLString.append("INSERT INTO ")
-                     .append(FILE_NAME.replace("-","_"))
-                     .append("(").append(columns).append(")")
-                     .append("\n");
+            // give the elements to the DBConnector to add the data
+            added = DB_CONNECTOR.insertData(elements);
 
-            // add the values to the StringBuilder
-            DMLString.append("VALUES (");
-            DMLString.append("\"").append(elements[0]).append("\"");
-            for (int i = 1; i < elements.length; i++) {
-                DMLString.append(", ");
-                DMLString.append("\"").append(elements[i]).append("\"");
+            if (added) {
+                System.out.println("Data added: " + Arrays.toString(elements));
+            } else {
+                System.out.println("Failed to add data: " + Arrays.toString(elements));
             }
-            // add the ending to the statement
-            DMLString.append(");\n");
-        }
-
-        writeToFile("data/DML.sql", DMLString.toString());
-    }
-
-    public static void writeToFile(String filePath, String stringToSave){
-        try {
-            // print to file
-            FileWriter fileWriter = new FileWriter(filePath);
-            fileWriter.write(stringToSave);
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
