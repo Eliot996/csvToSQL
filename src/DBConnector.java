@@ -1,10 +1,12 @@
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 
 public class DBConnector {
 
     private static DBConnector dbConnector = new DBConnector();
 
-    private static Connection con;
+    private Connection con;
+    private String columns;
 
     private DBConnector() {
         try {
@@ -20,7 +22,7 @@ public class DBConnector {
         return stmt.executeQuery(query);
     }
 
-    public boolean insertUser(String user_name, String user_password, String gender, String email, String phone) throws SQLException {
+    /*public boolean insertUser(String user_name, String user_password, String gender, String email, String phone) throws SQLException {
         String sqlString = "INSERT INTO users(user_name, user_password, gender, email, phone)" +
                            "VALUES (?,?,?,?,?)";
 
@@ -32,6 +34,11 @@ public class DBConnector {
         stmt.setString(5, phone);
 
         return stmt.execute();
+    }*/
+
+    public boolean excuteStatment(String sql) throws SQLException {
+        Statement stmt = con.createStatement();
+        return stmt.execute(sql);
     }
 
     private void DBConnect() throws SQLException {
@@ -42,6 +49,10 @@ public class DBConnector {
     public void DBDisconnect() throws SQLException {
         con.close();
         System.out.println("Disconnected from DB");
+    }
+
+    public void setColumns(String columns) {
+        this.columns = columns;
     }
 
     public static DBConnector getDbConnector() {
