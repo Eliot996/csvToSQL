@@ -31,37 +31,19 @@ public class Main {
         DB_CONNECTOR.DBDisconnect();
     }
 
-    private static void makeAndExecuteDDL() throws SQLException {
-        StringBuilder DDLString = new StringBuilder();
+    private static void makeAndExecuteDDL() {
+        boolean created;
 
-        //Create table header
-        DDLString.append("CREATE TABLE ")
-                 .append(FILE_NAME.replace("-", "_"))
-                 .append(" (\n")
-                 .append("    ID int NOT NULL AUTO_INCREMENT PRIMARY KEY");
-
-        // define columns
         String[] elements = fileScanner.nextLine().split(";");
-        for (String element : elements) {
-            DDLString.append(",\n");
-            DDLString.append("    ").append(element).append(" varchar(255)");
+
+        created = DB_CONNECTOR.createTable(FILE_NAME, elements);
+
+        if (created) {
+            System.out.println("Created table: " + FILE_NAME);
+        } else {
+            System.out.println("Failed to create the table");
+            System.exit(1);
         }
-
-        // ending
-        DDLString.append("\n);");
-
-        //writeToFile("data/DDL.sql", DDLString.toString());
-        DB_CONNECTOR.executeStatement(DDLString.toString());
-
-        // save columns, for use in the insert statements
-
-        columns = elements[0];
-        for (int i = 1; i < elements.length; i++) {
-            columns += ", " + elements[i];
-        }
-
-        DB_CONNECTOR.setColumns(columns);
-        DB_CONNECTOR.setFileName(FILE_NAME);
     }
 
     private static void makeAndExecuteDML() throws SQLException {
@@ -74,6 +56,7 @@ public class Main {
             // give the elements to the DBConnector to add the data
             added = DB_CONNECTOR.insertData(elements);
 
+            // print to the user, the success of the insert
             if (added) {
                 System.out.println("Data added: " + Arrays.toString(elements));
             } else {
