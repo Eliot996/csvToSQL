@@ -23,11 +23,44 @@ public class DBConnector {
         return stmt.executeQuery(query);
     }
 
+    public boolean createTable(String fileName,String[] columns) {
+        this.fileName = fileName;
+
+        this.columns = columns[0];
+        for (int i = 1; i < columns.length; i++) {
+            this.columns += ", " + columns[i];
+        }
+
+        StringBuilder DDLString = new StringBuilder();
+
+        //Create table header
+        DDLString.append("CREATE TABLE ")
+                .append(fileName)
+                .append(" (\n")
+                .append("    ID int NOT NULL AUTO_INCREMENT PRIMARY KEY");
+
+        // define columns
+
+        for (String element : columns) {
+            DDLString.append(",\n");
+            DDLString.append("    ").append(element).append(" varchar(255)");
+        }
+
+        // ending
+        DDLString.append("\n);");
+
+        try {
+            Statement stmt = con.createStatement();
+            stmt.execute(DDLString.toString());
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
     public boolean insertData(String[] info) throws SQLException {
         String sqlString = "INSERT INTO " + fileName +  "(" + columns + ")" +
-                "VALUES (";
-
-        sqlString += "?";
+                "VALUES (?";
 
         for (int i = 1; i < info.length; i++) {
             sqlString += ",?";
