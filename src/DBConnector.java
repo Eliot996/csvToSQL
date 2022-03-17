@@ -1,4 +1,3 @@
-import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 
 public class DBConnector {
@@ -6,7 +5,9 @@ public class DBConnector {
     private static DBConnector dbConnector = new DBConnector();
 
     private Connection con;
+
     private String columns;
+    private String fileName;
 
     private DBConnector() {
         try {
@@ -22,23 +23,42 @@ public class DBConnector {
         return stmt.executeQuery(query);
     }
 
-    /*public boolean insertUser(String user_name, String user_password, String gender, String email, String phone) throws SQLException {
-        String sqlString = "INSERT INTO users(user_name, user_password, gender, email, phone)" +
-                           "VALUES (?,?,?,?,?)";
+    public boolean insertData(String[] info) throws SQLException {
+        String sqlString = "INSERT INTO " + fileName +  "(" + columns + ")" +
+                "VALUES (";
+
+        sqlString += "?";
+
+        for (int i = 1; i < info.length; i++) {
+            sqlString += ",?";
+        }
+
+        sqlString += ")";
+
 
         PreparedStatement stmt = con.prepareStatement(sqlString);
-        stmt.setString(1, user_name);
-        stmt.setString(2, user_password);
-        stmt.setString(3, gender);
-        stmt.setString(4, email);
-        stmt.setString(5, phone);
 
-        return stmt.execute();
-    }*/
+        for (int i = 0; i < info.length; i++) {
+            stmt.setString(i + 1, info[i]);
+        }
 
-    public boolean excuteStatment(String sql) throws SQLException {
-        Statement stmt = con.createStatement();
-        return stmt.execute(sql);
+        try {
+            stmt.execute();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public boolean executeStatement(String sql) {
+        try {
+            Statement stmt = con.createStatement();
+
+            stmt.execute(sql);
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     private void DBConnect() throws SQLException {
@@ -57,5 +77,9 @@ public class DBConnector {
 
     public static DBConnector getDbConnector() {
         return dbConnector;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
