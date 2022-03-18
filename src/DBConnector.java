@@ -58,7 +58,7 @@ public class DBConnector {
         }
     }
 
-    public boolean insertData(String[] info) throws SQLException {
+    public boolean insertData(String[] info) {
         String sqlString = "INSERT INTO " + fileName +  "(" + columns + ")" +
                 "VALUES (?";
 
@@ -69,10 +69,16 @@ public class DBConnector {
         sqlString += ")";
 
 
-        PreparedStatement stmt = con.prepareStatement(sqlString);
+        PreparedStatement stmt;
+        try{
+            stmt = con.prepareStatement(sqlString);
 
-        for (int i = 0; i < info.length; i++) {
-            stmt.setString(i + 1, info[i]);
+            for (int i = 0; i < info.length; i++) {
+                stmt.setString(i + 1, info[i]);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to insert data into statement");
+            return false;
         }
 
         try {

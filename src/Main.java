@@ -46,7 +46,7 @@ public class Main {
         }
     }
 
-    private static void makeAndExecuteDML() throws SQLException {
+    private static void makeAndExecuteDML() {
         boolean added;
 
         while (fileScanner.hasNextLine()) {
